@@ -8,7 +8,6 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https',
     iosScheme: 'https',
-    // Allow Firebase domains
     allowNavigation: [
       '*.firebaseapp.com',
       '*.googleapis.com',
@@ -16,7 +15,9 @@ const config: CapacitorConfig = {
       'firestore.googleapis.com',
       'identitytoolkit.googleapis.com',
       'securetoken.googleapis.com',
-      '*.cloudfunctions.net'
+      '*.cloudfunctions.net',
+      '*.vercel.app',  // ⚡ ADD THIS
+      'your-app.vercel.app'  // ⚡ ADD YOUR ACTUAL DOMAIN
     ],
   },
   plugins: {
