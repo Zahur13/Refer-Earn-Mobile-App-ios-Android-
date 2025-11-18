@@ -83,9 +83,25 @@ const Support = () => {
     setLoading(true);
 
     try {
-      const token = await auth.currentUser.getIdToken();
+      console.log("📝 Ticket data being submitted:", {
+        userName: userData.name,
+        userEmail: userData.email,
+        userPhone: userData.phone || "",
+        subject: formData.subject,
+        message: formData.message,
+      });
 
-      const response = await fetch("/api/submitSupportTicket", {
+      const token = await auth.currentUser.getIdToken();
+      console.log("🔑 Auth token obtained");
+
+      // ⚡ Use environment variable or fallback to window.location.origin
+      const apiUrl = process.env.REACT_APP_API_URL || window.location.origin;
+      const endpoint = `${apiUrl}/api/submitSupportTicket`;
+
+      console.log("🌐 API endpoint:", endpoint);
+      console.log("🌐 Environment:", process.env.NODE_ENV);
+
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -100,26 +116,50 @@ const Support = () => {
         }),
       });
 
+      console.log("📡 Response status:", response.status);
+
       const result = await response.json();
+      console.log("📡 Response data:", result);
 
       if (!response.ok) {
-        throw new Error(result.error || "Failed to send message");
+        throw new Error(
+          result.error || `HTTP ${response.status}: ${response.statusText}`
+        );
       }
 
       setSubmitted(true);
       setFormData({ subject: "", message: "" });
-      toast.success(result.message);
+      toast.success(result.message || "Ticket submitted successfully!");
 
       // Refresh tickets
       await fetchMyTickets();
 
       setTimeout(() => {
         setSubmitted(false);
-        setActiveTab("history"); // Switch to history tab
+        setActiveTab("history");
       }, 2000);
     } catch (error) {
-      console.error("Support form error:", error);
-      toast.error(error.message || "Failed to send message");
+      console.error("❌ Support form error:", error);
+      console.error("❌ Error details:", {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      });
+
+      if (
+        error.message.includes("Failed to fetch") ||
+        error.message.includes("Network request failed")
+      ) {
+        toast.error("Network error. Please check your internet connection.");
+      } else if (error.message.includes("HTTP 401")) {
+        toast.error("Authentication error. Please log out and log in again.");
+      } else if (error.message.includes("HTTP 500")) {
+        toast.error("Server error. Please try again later.");
+      } else {
+        toast.error(
+          error.message || "Failed to submit ticket. Please try again."
+        );
+      }
     } finally {
       setLoading(false);
     }

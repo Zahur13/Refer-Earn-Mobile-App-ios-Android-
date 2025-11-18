@@ -8,6 +8,16 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https',
     iosScheme: 'https',
+    // Allow Firebase domains
+    allowNavigation: [
+      '*.firebaseapp.com',
+      '*.googleapis.com',
+      '*.google.com',
+      'firestore.googleapis.com',
+      'identitytoolkit.googleapis.com',
+      'securetoken.googleapis.com',
+      '*.cloudfunctions.net'
+    ],
   },
   plugins: {
     SplashScreen: {
@@ -17,9 +27,6 @@ const config: CapacitorConfig = {
       androidSplashResourceName: "splash",
       iosSplashResourceName: "Splash",
       showSpinner: false,
-      androidSpinnerStyle: "large",
-      iosSpinnerStyle: "small",
-      spinnerColor: "#ffffff",
       splashFullScreen: true,
       splashImmersive: true,
     },
@@ -41,6 +48,7 @@ const config: CapacitorConfig = {
   ios: {
     contentInset: 'automatic',
     scrollEnabled: true,
+    limitsNavigationsToAppBoundDomains: false,
   },
 };
 
