@@ -3,7 +3,6 @@ import {
   getAuth,
   initializeAuth,
   browserLocalPersistence,
-  indexedDBLocalPersistence,
 } from "firebase/auth";
 import {
   getFirestore,
@@ -17,7 +16,7 @@ console.log("🔍 Firebase config.js loading...");
 console.log("🔍 Platform:", Capacitor.getPlatform());
 console.log("🔍 Is Native:", Capacitor.isNativePlatform());
 
-// Firebase config
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDOSPy-XiyeO6U5msKuzINnqvFqnD8C0e0",
   authDomain: "refer-earn-platform.firebaseapp.com",
@@ -28,79 +27,46 @@ const firebaseConfig = {
   measurementId: "G-NV1ER35PM6",
 };
 
-console.log("🔍 Firebase config:", {
-  apiKey: firebaseConfig.apiKey ? "✅ Present" : "❌ Missing",
-  authDomain: firebaseConfig.authDomain,
-  projectId: firebaseConfig.projectId,
-});
+console.log("🔍 Firebase config validated");
 
-// Validate
-const requiredKeys = [
-  "apiKey",
-  "authDomain",
-  "projectId",
-  "storageBucket",
-  "messagingSenderId",
-  "appId",
-];
-const missingKeys = requiredKeys.filter((key) => !firebaseConfig[key]);
-
-if (missingKeys.length > 0) {
-  console.error("❌ Firebase: Missing keys:", missingKeys);
-  throw new Error(`Missing Firebase config keys: ${missingKeys.join(", ")}`);
-}
-
-console.log("✅ Firebase: All config keys present");
-
-// Initialize Firebase
+// Initialize Firebase App
 let app;
 try {
   app = initializeApp(firebaseConfig);
   console.log("✅ Firebase: App initialized");
-  console.log("✅ Firebase: App name:", app.name);
 } catch (error) {
   console.error("❌ Firebase: Init error:", error);
   throw error;
 }
 
-// Initialize Auth with proper iOS configuration
+// Initialize Auth
 let auth;
 try {
   if (Capacitor.isNativePlatform()) {
-    console.log(
-      "📱 Firebase Auth: Initializing for mobile with custom persistence"
-    );
-
-    // Use initializeAuth with browser persistence for iOS
+    console.log("📱 Firebase Auth: Mobile mode");
     auth = initializeAuth(app, {
       persistence: browserLocalPersistence,
     });
   } else {
-    console.log("🌐 Firebase Auth: Initializing for web");
+    console.log("🌐 Firebase Auth: Web mode");
     auth = getAuth(app);
   }
-
   console.log("✅ Firebase: Auth initialized");
-  console.log("✅ Firebase: Auth app name:", auth.app.name);
 } catch (error) {
-  console.error("❌ Firebase: Auth initialization error:", error);
-  // Fallback to default auth
+  console.error("❌ Firebase: Auth error:", error);
   auth = getAuth(app);
-  console.log("⚠️ Firebase: Using fallback auth initialization");
 }
-
-export { auth };
 
 // Initialize Firestore
 let db;
 try {
   if (Capacitor.isNativePlatform()) {
-    console.log("📱 Firebase: Mobile - using persistent cache");
+    console.log("📱 Firebase: Firestore with persistent cache");
     db = initializeFirestore(app, {
       localCache: persistentLocalCache(),
     });
   } else {
-    console.log("🌐 Firebase: Web - using default Firestore");
+    console.log("🌐 Firebase: Firestore default mode");
     db = getFirestore(app);
   }
   console.log("✅ Firebase: Firestore initialized");
@@ -109,9 +75,11 @@ try {
   db = getFirestore(app);
 }
 
-export { db };
+// Initialize Functions
 export const functions = getFunctions(app);
 
-console.log("✅ Firebase: All services initialized");
-
+// Export services
+export { auth, db };
 export default app;
+
+console.log("✅ Firebase: All services ready");
